@@ -1,267 +1,332 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HomeTasks – Gestión del Hogar</title>
-  <meta name="description" content="Gestiona las tareas del hogar, pagos e imprevistos de forma fácil y visual."/>
+  <meta name="description" content="Gestiona las tareas del hogar, pagos e imprevistos con tu familia o compañeros de piso."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="app.css"/>
 </head>
 <body>
 
-<!-- ───────────── SIDEBAR ───────────── -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">🏠</div>
-    <span class="logo-text">HomeTasks</span>
-  </div>
+<!-- ═══════════ AUTH SCREENS ═══════════ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-bg-glow"></div>
 
-  <nav class="sidebar-nav">
-    <button class="nav-item active" data-view="dashboard" onclick="switchView('dashboard')">
-      <span class="nav-icon">📊</span>
-      <span class="nav-label">Panel</span>
-    </button>
-    <button class="nav-item" data-view="tasks" onclick="switchView('tasks')">
-      <span class="nav-icon">✅</span>
-      <span class="nav-label">Tareas</span>
-      <span class="nav-badge" id="badge-tasks">0</span>
-    </button>
-    <button class="nav-item" data-view="payments" onclick="switchView('payments')">
-      <span class="nav-icon">💳</span>
-      <span class="nav-label">Pagos</span>
-      <span class="nav-badge" id="badge-payments">0</span>
-    </button>
-    <button class="nav-item" data-view="incidents" onclick="switchView('incidents')">
-      <span class="nav-icon">⚡</span>
-      <span class="nav-label">Imprevistos</span>
-      <span class="nav-badge" id="badge-incidents">0</span>
-    </button>
-    <button class="nav-item" data-view="calendar" onclick="switchView('calendar')">
-      <span class="nav-icon">📅</span>
-      <span class="nav-label">Calendario</span>
-    </button>
-  </nav>
-
-  <div class="sidebar-footer">
-    <div class="user-avatar">P</div>
-    <div class="user-info">
-      <span class="user-name">Mi Hogar</span>
-      <span class="user-sub">Gestión personal</span>
+  <!-- LOGIN -->
+  <div class="auth-card" id="auth-login">
+    <div class="auth-logo">
+      <div class="logo-icon">🏠</div>
+      <span class="logo-text">HomeTasks</span>
     </div>
+    <h1 class="auth-title">Bienvenido de nuevo</h1>
+    <p class="auth-sub">Inicia sesión para gestionar tu hogar</p>
+
+    <div id="login-error" class="auth-error" style="display:none"></div>
+
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input type="email" class="form-input" id="login-email" placeholder="tu@email.com" autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input type="password" class="form-input" id="login-password" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn-submit full" id="btn-login" onclick="doLogin()">Iniciar Sesión</button>
+    <p class="auth-switch">¿No tienes cuenta? <button onclick="showAuthView('register')">Regístrate gratis</button></p>
+    <p class="auth-switch" style="margin-top:6px">¿Tienes un código de invitación? <button onclick="showAuthView('join')">Unirte a un hogar</button></p>
   </div>
-</aside>
 
-<!-- Mobile overlay -->
-<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+  <!-- REGISTER -->
+  <div class="auth-card" id="auth-register" style="display:none">
+    <div class="auth-logo">
+      <div class="logo-icon">🏠</div>
+      <span class="logo-text">HomeTasks</span>
+    </div>
+    <h1 class="auth-title">Crear cuenta</h1>
+    <p class="auth-sub">Empieza a organizar tu hogar hoy</p>
 
-<!-- ───────────── MAIN ───────────── -->
-<main class="main" id="main">
+    <div id="register-error" class="auth-error" style="display:none"></div>
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <div class="topbar-title" id="topbar-title">Panel General</div>
-    <div class="topbar-actions">
-      <button class="btn-add" id="btn-add-global" onclick="openAddModal()">
-        <span>＋</span> Añadir
+    <div class="form-group">
+      <label class="form-label">Nombre completo</label>
+      <input type="text" class="form-input" id="reg-name" placeholder="Tu nombre" autocomplete="name"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Correo electrónico</label>
+      <input type="email" class="form-input" id="reg-email" placeholder="tu@email.com" autocomplete="email"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input type="password" class="form-input" id="reg-password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirmar contraseña</label>
+      <input type="password" class="form-input" id="reg-password-confirm" placeholder="Repite la contraseña" autocomplete="new-password"/>
+    </div>
+    <button class="btn-submit full" id="btn-register" onclick="doRegister()">Crear Cuenta</button>
+    <p class="auth-switch">¿Ya tienes cuenta? <button onclick="showAuthView('login')">Inicia sesión</button></p>
+  </div>
+
+  <!-- JOIN BY CODE -->
+  <div class="auth-card" id="auth-join" style="display:none">
+    <div class="auth-logo">
+      <div class="logo-icon">🏠</div>
+      <span class="logo-text">HomeTasks</span>
+    </div>
+    <h1 class="auth-title">Unirse a un hogar</h1>
+    <p class="auth-sub">Introduce el código que te compartieron</p>
+
+    <div id="join-error" class="auth-error" style="display:none"></div>
+
+    <div class="form-group">
+      <label class="form-label">Código de invitación</label>
+      <input type="text" class="form-input" id="join-code" placeholder="Ej: ABCD1234" style="text-transform:uppercase;letter-spacing:0.1em;font-size:18px;font-weight:700;text-align:center"/>
+    </div>
+    <p class="auth-sub" style="margin-bottom:12px">Si aún no tienes cuenta, regístrate primero y después podrás unirte con el código.</p>
+    <button class="btn-submit full" id="btn-join" onclick="doJoinByCode()">Unirse al Hogar</button>
+    <p class="auth-switch"><button onclick="showAuthView('login')">← Volver al inicio</button></p>
+  </div>
+</div>
+
+<!-- ═══════════ MAIN APP ═══════════ -->
+<div id="app-screen" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🏠</div>
+      <span class="logo-text">HomeTasks</span>
+    </div>
+
+    <!-- HOME SELECTOR -->
+    <div class="home-selector" id="home-selector-wrap">
+      <div class="home-selector-btn" onclick="toggleHomeDropdown()" id="home-selector-btn">
+        <span class="home-avatar" id="sel-avatar">🏠</span>
+        <span class="home-name" id="sel-name">Mi Hogar</span>
+        <span class="home-caret">▾</span>
+      </div>
+      <div class="home-dropdown" id="home-dropdown" style="display:none">
+        <div id="home-dropdown-list"></div>
+        <div class="home-dropdown-sep"></div>
+        <button class="home-dropdown-item new" onclick="openNewHomeModal()">＋ Nuevo hogar</button>
+        <button class="home-dropdown-item new" onclick="openJoinHomeModal()">🔗 Unirse con código</button>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="dashboard" onclick="switchView('dashboard')">
+        <span class="nav-icon">📊</span><span class="nav-label">Panel</span>
       </button>
-    </div>
-  </header>
+      <button class="nav-item" data-view="tasks" onclick="switchView('tasks')">
+        <span class="nav-icon">✅</span><span class="nav-label">Tareas</span>
+        <span class="nav-badge" id="badge-tasks">0</span>
+      </button>
+      <button class="nav-item" data-view="payments" onclick="switchView('payments')">
+        <span class="nav-icon">💳</span><span class="nav-label">Pagos</span>
+        <span class="nav-badge" id="badge-payments">0</span>
+      </button>
+      <button class="nav-item" data-view="incidents" onclick="switchView('incidents')">
+        <span class="nav-icon">⚡</span><span class="nav-label">Imprevistos</span>
+        <span class="nav-badge" id="badge-incidents">0</span>
+      </button>
+      <button class="nav-item" data-view="calendar" onclick="switchView('calendar')">
+        <span class="nav-icon">📅</span><span class="nav-label">Calendario</span>
+      </button>
+      <button class="nav-item" data-view="members" onclick="switchView('members')">
+        <span class="nav-icon">👥</span><span class="nav-label">Miembros</span>
+      </button>
+    </nav>
 
-  <!-- ── DASHBOARD VIEW ── -->
-  <section class="view active" id="view-dashboard">
-    <div class="section-header">
-      <div>
-        <h1 class="section-title">Bienvenido 👋</h1>
-        <p class="section-sub" id="date-display"></p>
+    <div class="sidebar-footer">
+      <div class="user-avatar-wrap" id="user-avatar-display" style="background:#6c63ff">U</div>
+      <div class="user-info">
+        <span class="user-name" id="sidebar-username">Usuario</span>
+        <span class="user-sub" id="sidebar-email">email</span>
       </div>
+      <button class="logout-btn" onclick="doLogout()" title="Cerrar sesión">⏏</button>
     </div>
+  </aside>
 
-    <!-- Summary Cards -->
-    <div class="stats-grid">
-      <div class="stat-card stat-tasks" onclick="switchView('tasks')">
-        <div class="stat-icon">✅</div>
-        <div class="stat-info">
-          <span class="stat-value" id="stat-tasks-total">0</span>
-          <span class="stat-label">Tareas Pendientes</span>
-        </div>
-        <div class="stat-progress-wrap">
-          <div class="stat-progress" id="stat-tasks-bar"></div>
-        </div>
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <main class="main" id="main">
+    <header class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbar-title">Panel General</div>
+      <div class="topbar-actions">
+        <button class="btn-add" id="btn-add-global" onclick="openAddModal()">
+          <span>＋</span> Añadir
+        </button>
       </div>
-      <div class="stat-card stat-payments" onclick="switchView('payments')">
-        <div class="stat-icon">💳</div>
-        <div class="stat-info">
-          <span class="stat-value" id="stat-payments-due">0€</span>
-          <span class="stat-label">Por Pagar este mes</span>
-        </div>
-        <div class="stat-progress-wrap">
-          <div class="stat-progress" id="stat-payments-bar"></div>
-        </div>
-      </div>
-      <div class="stat-card stat-incidents" onclick="switchView('incidents')">
-        <div class="stat-icon">⚡</div>
-        <div class="stat-info">
-          <span class="stat-value" id="stat-incidents-open">0</span>
-          <span class="stat-label">Imprevistos Abiertos</span>
-        </div>
-        <div class="stat-progress-wrap">
-          <div class="stat-progress" id="stat-incidents-bar"></div>
-        </div>
-      </div>
-      <div class="stat-card stat-done">
-        <div class="stat-icon">🏆</div>
-        <div class="stat-info">
-          <span class="stat-value" id="stat-done-total">0</span>
-          <span class="stat-label">Completadas hoy</span>
-        </div>
-        <div class="stat-progress-wrap">
-          <div class="stat-progress" id="stat-done-bar"></div>
-        </div>
-      </div>
+    </header>
+
+    <!-- LOADING STATE -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="spinner"></div>
     </div>
 
-    <!-- Recent Activity -->
-    <div class="dash-grid">
-      <div class="dash-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Próximas Tareas</h2>
-          <button class="panel-link" onclick="switchView('tasks')">Ver todo →</button>
-        </div>
-        <div class="panel-list" id="dash-tasks-list">
-          <div class="empty-state-mini">Sin tareas pendientes 🎉</div>
+    <!-- ── DASHBOARD ── -->
+    <section class="view active" id="view-dashboard">
+      <div class="section-header">
+        <div>
+          <h1 class="section-title">Bienvenido 👋</h1>
+          <p class="section-sub" id="date-display"></p>
         </div>
       </div>
-      <div class="dash-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Pagos Próximos</h2>
-          <button class="panel-link" onclick="switchView('payments')">Ver todo →</button>
+      <div class="stats-grid">
+        <div class="stat-card stat-tasks" onclick="switchView('tasks')">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info"><span class="stat-value" id="stat-tasks-total">0</span><span class="stat-label">Tareas Pendientes</span></div>
+          <div class="stat-progress-wrap"><div class="stat-progress" id="stat-tasks-bar"></div></div>
         </div>
-        <div class="panel-list" id="dash-payments-list">
-          <div class="empty-state-mini">Sin pagos pendientes 🎉</div>
+        <div class="stat-card stat-payments" onclick="switchView('payments')">
+          <div class="stat-icon">💳</div>
+          <div class="stat-info"><span class="stat-value" id="stat-payments-due">0€</span><span class="stat-label">Por Pagar</span></div>
+          <div class="stat-progress-wrap"><div class="stat-progress" id="stat-payments-bar"></div></div>
+        </div>
+        <div class="stat-card stat-incidents" onclick="switchView('incidents')">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-info"><span class="stat-value" id="stat-incidents-open">0</span><span class="stat-label">Imprevistos Abiertos</span></div>
+          <div class="stat-progress-wrap"><div class="stat-progress" id="stat-incidents-bar"></div></div>
+        </div>
+        <div class="stat-card stat-done">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info"><span class="stat-value" id="stat-members">0</span><span class="stat-label">Miembros del Hogar</span></div>
+          <div class="stat-progress-wrap"><div class="stat-progress" id="stat-done-bar"></div></div>
         </div>
       </div>
-      <div class="dash-panel">
-        <div class="panel-header">
-          <h2 class="panel-title">Imprevistos Recientes</h2>
-          <button class="panel-link" onclick="switchView('incidents')">Ver todo →</button>
+      <div class="dash-grid">
+        <div class="dash-panel">
+          <div class="panel-header"><h2 class="panel-title">Próximas Tareas</h2><button class="panel-link" onclick="switchView('tasks')">Ver todo →</button></div>
+          <div class="panel-list" id="dash-tasks-list"><div class="empty-state-mini">Sin tareas pendientes 🎉</div></div>
         </div>
-        <div class="panel-list" id="dash-incidents-list">
-          <div class="empty-state-mini">Sin imprevistos 🎉</div>
+        <div class="dash-panel">
+          <div class="panel-header"><h2 class="panel-title">Pagos Próximos</h2><button class="panel-link" onclick="switchView('payments')">Ver todo →</button></div>
+          <div class="panel-list" id="dash-payments-list"><div class="empty-state-mini">Sin pagos pendientes 🎉</div></div>
+        </div>
+        <div class="dash-panel">
+          <div class="panel-header"><h2 class="panel-title">Imprevistos Abiertos</h2><button class="panel-link" onclick="switchView('incidents')">Ver todo →</button></div>
+          <div class="panel-list" id="dash-incidents-list"><div class="empty-state-mini">Sin imprevistos 🎉</div></div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ── TASKS VIEW ── -->
-  <section class="view" id="view-tasks">
-    <div class="section-header">
-      <div>
-        <h1 class="section-title">Tareas del Hogar</h1>
-        <p class="section-sub">Organiza y completa las tareas de tu hogar</p>
+    <!-- ── TASKS VIEW ── -->
+    <section class="view" id="view-tasks">
+      <div class="section-header">
+        <div><h1 class="section-title">Tareas del Hogar</h1><p class="section-sub">Organiza y completa las tareas</p></div>
+        <button class="btn-add" onclick="openAddModal('task')"><span>＋</span> Nueva Tarea</button>
       </div>
-      <button class="btn-add" onclick="openAddModal('task')"><span>＋</span> Nueva Tarea</button>
-    </div>
-
-    <!-- Filters -->
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterItems('tasks','all',this)">Todas</button>
-      <button class="filter-btn" onclick="filterItems('tasks','pending',this)">Pendientes</button>
-      <button class="filter-btn" onclick="filterItems('tasks','done',this)">Completadas</button>
-      <div class="filter-sep"></div>
-      <select class="filter-select" onchange="filterCategory('tasks',this.value)">
-        <option value="all">Todas las categorías</option>
-        <option value="limpieza">🧹 Limpieza</option>
-        <option value="cocina">🍳 Cocina</option>
-        <option value="mantenimiento">🔧 Mantenimiento</option>
-        <option value="jardín">🌿 Jardín</option>
-        <option value="compras">🛒 Compras</option>
-        <option value="otro">📦 Otro</option>
-      </select>
-    </div>
-
-    <div class="items-grid" id="tasks-list"></div>
-  </section>
-
-  <!-- ── PAYMENTS VIEW ── -->
-  <section class="view" id="view-payments">
-    <div class="section-header">
-      <div>
-        <h1 class="section-title">Pagos & Facturas</h1>
-        <p class="section-sub">Control de pagos del hogar y fechas de vencimiento</p>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterItems('tasks','all',this)">Todas</button>
+        <button class="filter-btn" onclick="filterItems('tasks','pending',this)">Pendientes</button>
+        <button class="filter-btn" onclick="filterItems('tasks','done',this)">Completadas</button>
+        <div class="filter-sep"></div>
+        <select class="filter-select" onchange="filterCategory('tasks',this.value)">
+          <option value="all">Todas las categorías</option>
+          <option value="limpieza">🧹 Limpieza</option>
+          <option value="cocina">🍳 Cocina</option>
+          <option value="mantenimiento">🔧 Mantenimiento</option>
+          <option value="jardín">🌿 Jardín</option>
+          <option value="compras">🛒 Compras</option>
+          <option value="otro">📦 Otro</option>
+        </select>
       </div>
-      <button class="btn-add" onclick="openAddModal('payment')"><span>＋</span> Nuevo Pago</button>
-    </div>
+      <div class="items-grid" id="tasks-list"></div>
+    </section>
 
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterItems('payments','all',this)">Todos</button>
-      <button class="filter-btn" onclick="filterItems('payments','pending',this)">Pendientes</button>
-      <button class="filter-btn" onclick="filterItems('payments','paid',this)">Pagados</button>
-      <button class="filter-btn" onclick="filterItems('payments','overdue',this)">Vencidos</button>
-    </div>
-
-    <!-- Monthly summary -->
-    <div class="payment-summary" id="payment-summary"></div>
-
-    <div class="items-grid" id="payments-list"></div>
-  </section>
-
-  <!-- ── INCIDENTS VIEW ── -->
-  <section class="view" id="view-incidents">
-    <div class="section-header">
-      <div>
-        <h1 class="section-title">Imprevistos</h1>
-        <p class="section-sub">Averías, urgencias y situaciones inesperadas</p>
+    <!-- ── PAYMENTS VIEW ── -->
+    <section class="view" id="view-payments">
+      <div class="section-header">
+        <div><h1 class="section-title">Pagos & Facturas</h1><p class="section-sub">Control de pagos y vencimientos</p></div>
+        <button class="btn-add" onclick="openAddModal('payment')"><span>＋</span> Nuevo Pago</button>
       </div>
-      <button class="btn-add" onclick="openAddModal('incident')"><span>＋</span> Nuevo Imprevisto</button>
-    </div>
-
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterItems('incidents','all',this)">Todos</button>
-      <button class="filter-btn" onclick="filterItems('incidents','open',this)">Abiertos</button>
-      <button class="filter-btn" onclick="filterItems('incidents','resolved',this)">Resueltos</button>
-      <div class="filter-sep"></div>
-      <select class="filter-select" onchange="filterCategory('incidents',this.value)">
-        <option value="all">Todas las categorías</option>
-        <option value="avería">🔩 Avería</option>
-        <option value="urgencia">🚨 Urgencia</option>
-        <option value="reparación">🔨 Reparación</option>
-        <option value="compra urgente">🛍️ Compra urgente</option>
-        <option value="otro">📦 Otro</option>
-      </select>
-    </div>
-
-    <div class="items-grid" id="incidents-list"></div>
-  </section>
-
-  <!-- ── CALENDAR VIEW ── -->
-  <section class="view" id="view-calendar">
-    <div class="section-header">
-      <div>
-        <h1 class="section-title">Calendario</h1>
-        <p class="section-sub">Vista mensual de tareas y pagos</p>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterItems('payments','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterItems('payments','pending',this)">Pendientes</button>
+        <button class="filter-btn" onclick="filterItems('payments','paid',this)">Pagados</button>
+        <button class="filter-btn" onclick="filterItems('payments','overdue',this)">Vencidos</button>
       </div>
-    </div>
-    <div class="calendar-wrap">
-      <div class="calendar-nav">
-        <button class="cal-btn" onclick="changeMonth(-1)">‹</button>
-        <h2 class="cal-month-title" id="cal-title"></h2>
-        <button class="cal-btn" onclick="changeMonth(1)">›</button>
-      </div>
-      <div class="calendar-grid" id="calendar-grid"></div>
-      <div class="cal-legend">
-        <span class="cal-dot task-dot"></span> Tarea
-        <span class="cal-dot payment-dot"></span> Pago
-        <span class="cal-dot incident-dot"></span> Imprevisto
-      </div>
-    </div>
-  </section>
+      <div class="payment-summary" id="payment-summary"></div>
+      <div class="items-grid" id="payments-list"></div>
+    </section>
 
-</main>
+    <!-- ── INCIDENTS VIEW ── -->
+    <section class="view" id="view-incidents">
+      <div class="section-header">
+        <div><h1 class="section-title">Imprevistos</h1><p class="section-sub">Averías, urgencias y situaciones inesperadas</p></div>
+        <button class="btn-add" onclick="openAddModal('incident')"><span>＋</span> Nuevo Imprevisto</button>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterItems('incidents','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterItems('incidents','open',this)">Abiertos</button>
+        <button class="filter-btn" onclick="filterItems('incidents','resolved',this)">Resueltos</button>
+        <div class="filter-sep"></div>
+        <select class="filter-select" onchange="filterCategory('incidents',this.value)">
+          <option value="all">Todas las categorías</option>
+          <option value="avería">🔩 Avería</option>
+          <option value="urgencia">🚨 Urgencia</option>
+          <option value="reparación">🔨 Reparación</option>
+          <option value="compra urgente">🛍️ Compra urgente</option>
+          <option value="otro">📦 Otro</option>
+        </select>
+      </div>
+      <div class="items-grid" id="incidents-list"></div>
+    </section>
 
-<!-- ───────────── MODAL ───────────── -->
+    <!-- ── CALENDAR VIEW ── -->
+    <section class="view" id="view-calendar">
+      <div class="section-header">
+        <div><h1 class="section-title">Calendario</h1><p class="section-sub">Vista mensual de tareas y pagos</p></div>
+      </div>
+      <div class="calendar-wrap">
+        <div class="calendar-nav">
+          <button class="cal-btn" onclick="changeMonth(-1)">‹</button>
+          <h2 class="cal-month-title" id="cal-title"></h2>
+          <button class="cal-btn" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+        <div class="cal-legend">
+          <span class="cal-dot task-dot"></span> Tarea
+          <span class="cal-dot payment-dot"></span> Pago
+          <span class="cal-dot incident-dot"></span> Imprevisto
+        </div>
+      </div>
+    </section>
+
+    <!-- ── MEMBERS VIEW ── -->
+    <section class="view" id="view-members">
+      <div class="section-header">
+        <div><h1 class="section-title">Miembros del Hogar</h1><p class="section-sub" id="members-home-name">–</p></div>
+        <button class="btn-add" onclick="openInviteModal()">📨 Invitar</button>
+      </div>
+
+      <!-- Invite Code Banner -->
+      <div class="invite-banner" id="invite-banner">
+        <div class="invite-banner-left">
+          <div class="invite-banner-icon">🔗</div>
+          <div>
+            <div class="invite-banner-title">Código de invitación</div>
+            <div class="invite-banner-code" id="invite-code-display">–</div>
+          </div>
+        </div>
+        <div class="invite-banner-actions">
+          <button class="inv-btn" onclick="copyInviteCode()" id="btn-copy-code">📋 Copiar</button>
+          <button class="inv-btn" onclick="regenerateCode()">🔄 Regenerar</button>
+        </div>
+      </div>
+
+      <div class="members-grid" id="members-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════ MODAL ═══════════ -->
 <div class="modal-backdrop" id="modal-backdrop" onclick="closeModal()"></div>
 <div class="modal" id="modal">
   <div class="modal-header">
@@ -271,7 +336,7 @@
   <div class="modal-body" id="modal-body"></div>
 </div>
 
-<!-- ───────────── TOAST ───────────── -->
+<!-- ═══════════ TOAST ═══════════ -->
 <div class="toast-container" id="toast-container"></div>
 
 <script src="app.js"></script>
