@@ -3,7 +3,11 @@
 // ═══════════════════════════════════════════════════════
 
 // ── CONFIG ─────────────────────────────────────────────
-const BASE = window.location.origin + '/hometasks/public/api';
+// Works for both virtual host (hometasks.test) and subdirectory (localhost/hometasks/public)
+const BASE = (() => {
+  const dir = window.location.pathname.replace(/\/[^/]*$/, ''); // strip filename
+  return window.location.origin + dir + '/api';
+})();
 
 // ── STATE ──────────────────────────────────────────────
 let state = {
@@ -323,7 +327,7 @@ async function submitJoin() {
 function openInviteModal() {
   const homeId = state.currentHome?.id;
   const code   = state.currentHome?.invite_code || '';
-  const invUrl = `${window.location.origin}/hometasks/public/#join`;
+  const invUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '') + '/#join';
   document.getElementById('modal-title').textContent = '📨 Invitar Miembros';
   document.getElementById('modal-body').innerHTML = `
     <div style="margin-bottom:20px">
@@ -742,7 +746,7 @@ function openAddModal(type) {
 
 function editItem(type, id) {
   const map = { task: state.tasks, payment: state.payments, incident: state.incidents };
-  const item = map[type + 's'].find(i => i.id === id);
+  const item = map[type]?.find(i => i.id === id);
   if (!item) return;
   state.editingId   = id;
   state.editingType = type;
@@ -883,6 +887,7 @@ async function submitTask() {
     due_date:    document.getElementById('f-due')?.value || null,
     assigned_to: document.getElementById('f-assigned')?.value || null,
   };
+  if (body.assigned_to === '') body.assigned_to = null;
   try {
     if (state.editingId) {
       const updated = await PUT(`/homes/${state.currentHome.id}/tasks/${state.editingId}`, body);

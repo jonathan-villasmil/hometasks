@@ -19,8 +19,7 @@ class Home extends Model
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'home_user')
-            ->withPivot('role', 'joined_at')
-            ->withTimestamps();
+            ->withPivot('role', 'joined_at');
     }
 
     public function tasks(): HasMany

@@ -30,8 +30,7 @@ class User extends Authenticatable
     public function homes(): BelongsToMany
     {
         return $this->belongsToMany(Home::class, 'home_user')
-            ->withPivot('role', 'joined_at')
-            ->withTimestamps();
+            ->withPivot('role', 'joined_at');
     }
 
     public function ownedHomes(): HasMany

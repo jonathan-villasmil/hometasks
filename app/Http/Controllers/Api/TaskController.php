@@ -22,7 +22,7 @@ class TaskController extends Controller
     {
         $home  = $this->getHome($request, $homeId);
         $tasks = $home->tasks()->with('createdBy:id,name,avatar_color', 'assignedTo:id,name,avatar_color')
-            ->orderByRaw("done ASC, due_date ASC NULLS LAST")
+            ->orderByRaw("done ASC, ISNULL(due_date) ASC, due_date ASC")
             ->get();
         return response()->json($tasks);
     }
